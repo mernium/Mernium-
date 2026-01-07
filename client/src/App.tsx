@@ -16,6 +16,8 @@ import Students from './pages/Students'
 import Teachers from './pages/Teachers'
 import Apply from './pages/Apply'
 import Contact from './pages/Contact'
+import { Toaster } from 'react-hot-toast'
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
       <div className="relative min-h-screen bg-black">
         <AnimatedBackground />
         <Navbar />
+        <Toaster />
         <main className="relative z-10">
           <Routes>
             <Route path="/" element={<Home />} />

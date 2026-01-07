@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle, CheckCircle2, Send } from 'lucide-react'
+import { submitForm } from '../api/api.ts'
+import { toast } from 'react-hot-toast'
 
 const Apply = () => {
   const [formData, setFormData] = useState({
@@ -11,25 +13,34 @@ const Apply = () => {
     background: '',
     motivation: '',
   })
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    setSubmitted(true)
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        batch: '',
-        background: '',
-        motivation: '',
-      })
-    }, 3000)
+    try {
+      setLoading(true)
+      const response = await submitForm(formData)
+      if (response.success) {
+        toast.success(response.message)
+        setSubmitted(true)
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          batch: '',
+          background: '',
+          motivation: '',
+        })
+      } else {
+        toast.error(response.error)
+      }
+      setLoading(false)
+    } catch (error) {
+      toast.error(error.message as string)
+    }finally{
+      setLoading(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -158,7 +169,7 @@ const Apply = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
+                    // required
                     className="w-full px-4 py-3 bg-black/40 border border-emerald-500/30 rounded-lg text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                     placeholder="Enter your full name"
                   />
@@ -252,8 +263,7 @@ const Apply = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Submit Application
-                  <Send size={20} />
+                  {loading ? 'Submitting...' : 'Submit Application'}
                 </motion.button>
               </div>
             </motion.form>
